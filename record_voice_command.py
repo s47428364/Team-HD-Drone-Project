@@ -1,40 +1,66 @@
 import pyaudio
 import wave
+import pyttsx3
 from faster_whisper import WhisperModel
 
 
+
+
+# Initialize Text-to-Speech Engine
+engine = pyttsx3.init()
+# This is to set the voice to English, inspired by https://stackoverflow.com
+# /questions/44858120/how-to-change-the-voice-in-pyttsx3
+voices = engine.getProperty('voices')
+for voice in voices:
+    print(voice)
+    if "English" in voice.name:
+        engine.setProperty('voice', voice.id)
+        break
+
+# Define function for text to speech
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+# The Main Entry
 def main():
     # initialize status
     status = True
-    # execute the loop to record voice command and transcribe it,
-    # the result will be saved in transcription.txt
-    # as input to the LLM model
+    speak("Welcone! The system is ready to listen to your voice commands.")
+
+    
     while status:
-        clear_command_file("audio.wav", "transcription.txt")
+        clear_command_file("command.wav")
         audio_file = record_audio()
         transcribe_audio(audio_file)
-        do_again = input("continue? type q to quit: ")
-        if  do_again == "q":
+        
+        speak("Do you want to continue?")
+        user_response = record_audio_check_continue()  # Use voice for continue/stop decision
+        transcription = transcribe_audio_for_command(user_response).lower()
+        
+        if "no" in transcription:
             status = False
         else:
             status = True
+            speak("Continuing to the next command.")
+
+    speak("Stopping the voice command interaction. Goodbye.")
+
+
 
 # inspired by ChatGPT-o1-mini (OpenAI, www.chatgpt.com).
-def clear_command_file(audio_file, transcription_file):
+def clear_command_file(audio_file):
     with open(audio_file, "w") as f:
         pass
-    # with open(transcription_file, "w") as f:
-    #     pass
 
-# inspired by https://www.geeksforgeeks.org/how-to-play-and-record-audio-in-python/
+
 def record_audio():
-    # Set up recording
     CHUNK = 1024
-    FORMAT = pyaudio.paInt32
+    FORMAT = pyaudio.paInt16
     CHANNELS = 2
     RATE = 44100
     RECORD_SECONDS = 8
-    WAVE_OUTPUT_FILENAME = "audio.wav"
+    WAVE_OUTPUT_FILENAME = "command.wav"
 
     p = pyaudio.PyAudio()
 
@@ -44,7 +70,7 @@ def record_audio():
                     input=True,
                     frames_per_buffer=CHUNK)
 
-    print("* recording")
+    speak("Recording now. Please speak your command in 8 seconds.")
 
     frames = []
 
@@ -52,7 +78,7 @@ def record_audio():
         data = stream.read(CHUNK)
         frames.append(data)
 
-    print("* done recording")
+    speak("Finished recording.")
 
     stream.stop_stream()
     stream.close()
@@ -67,18 +93,60 @@ def record_audio():
 
     return WAVE_OUTPUT_FILENAME
 
-# see https://github.com/SYSTRAN/faster-whisper
+
+def record_audio_check_continue():
+    # Shorter recording duration for confirming continue/stop decision
+    CHUNK = 1024
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 2
+    RATE = 44100
+    RECORD_SECONDS = 3
+    WAVE_OUTPUT_FILENAME = "continue.wav"
+
+    p = pyaudio.PyAudio()
+
+    stream = p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=CHUNK)
+
+    speak("Recording your response. Please say yes or no.")
+    frames = []
+
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+        data = stream.read(CHUNK)
+        frames.append(data)
+
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+    wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+    wf.setnchannels(CHANNELS)
+    wf.setsampwidth(p.get_sample_size(FORMAT))
+    wf.setframerate(RATE)
+    wf.writeframes(b''.join(frames))
+    wf.close()
+
+    return WAVE_OUTPUT_FILENAME
+
 def transcribe_audio(audio_file):
-    # Initial model
     model = WhisperModel("base")
     segments, _ = model.transcribe(audio_file)
     for segment in segments:
-        print("Transcription: ")
-        print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+        speak(f"Transcription: {segment.text}")
         with open("transcription.txt", "a") as f:
-            f.write("%s" % segment.text)
+            f.write(f"{segment.text}" + "\n")
 
-
+def transcribe_audio_for_command(audio_file):
+    # Same transcription function but with a shorter audio clip (for user commands)
+    model = WhisperModel("base")
+    segments, _ = model.transcribe(audio_file)
+    transcription = ''
+    for segment in segments:
+        transcription += segment.text
+    return transcription
 
 if __name__ == "__main__":
     main()
