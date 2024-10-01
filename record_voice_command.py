@@ -135,7 +135,7 @@ def transcribe_audio(audio_file):
     model = WhisperModel("base")
     segments, _ = model.transcribe(audio_file)
     for segment in segments:
-        speak(f"Transcription: {segment.text}")
+        speak(f"{segment.text}")
         with open("transcription.txt", "a") as f:
             f.write(f"{segment.text}" + "\n")
 
