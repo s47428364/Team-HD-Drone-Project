@@ -8,21 +8,17 @@ from faster_whisper import WhisperModel
 
 # Initialize Text-to-Speech Engine
 engine = pyttsx3.init()
-# This is to set the voice to English, inspired by https://stackoverflow.com
-# /questions/44858120/how-to-change-the-voice-in-pyttsx3
+# This is to set the voice to English
 voices = engine.getProperty('voices')
 for voice in voices:
-    print(voice)
     if "English" in voice.name:
         engine.setProperty('voice', voice.id)
         break
 
-# Define function for text to speech
 def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-# The Main Entry
 def main():
     # initialize status
     status = True
@@ -30,13 +26,12 @@ def main():
 
     
     while status:
-        clear_command_file("command.wav")
         audio_file = record_audio()
         transcribe_audio(audio_file)
         
         speak("Do you want to continue?")
         user_response = record_audio_check_continue()  # Use voice for continue/stop decision
-        transcription = transcribe_audio_for_command(user_response).lower()
+        transcription = transcribe_audio_for_continue(user_response).lower()
         
         if "no" in transcription:
             status = False
@@ -47,13 +42,7 @@ def main():
     speak("Stopping the voice command interaction. Goodbye.")
 
 
-
-# inspired by ChatGPT-o1-mini (OpenAI, www.chatgpt.com).
-def clear_command_file(audio_file):
-    with open(audio_file, "w") as f:
-        pass
-
-
+# Record the voice command
 def record_audio():
     CHUNK = 1024
     FORMAT = pyaudio.paInt16
@@ -94,6 +83,7 @@ def record_audio():
     return WAVE_OUTPUT_FILENAME
 
 
+# Record to check if the user wants to continue or stop
 def record_audio_check_continue():
     # Shorter recording duration for confirming continue/stop decision
     CHUNK = 1024
@@ -135,11 +125,11 @@ def transcribe_audio(audio_file):
     model = WhisperModel("base")
     segments, _ = model.transcribe(audio_file)
     for segment in segments:
-        speak(f"{segment.text}")
-        with open("transcription.txt", "a") as f:
+        with open("transcription.txt", "w") as f: # Write the transcription to a text file
             f.write(f"{segment.text}" + "\n")
 
-def transcribe_audio_for_command(audio_file):
+
+def transcribe_audio_for_continue(audio_file):
     # Same transcription function but with a shorter audio clip (for user commands)
     model = WhisperModel("base")
     segments, _ = model.transcribe(audio_file)
