@@ -11,9 +11,9 @@ __Speech Recognition__: Converts voice commands to text and uses LLM model to pr
 Before getting started, make sure you have the following installed:
 
 Unreal Engine (v4.27 or later)
-Microsoft AirSim
-Python 3.8 or later
-PyAudio
-LLaMA 3.1 8B Instruct Model
-Whisper Model for Speech Recognition
-Python Libraries: wave, pyttsx3, pyaudio, faster-whisper
+  Microsoft AirSim
+  Python 3.8 or later
+  PyAudio
+  LLaMA 3.1 8B Instruct Model
+  Whisper Model for Speech Recognition
+  Python Libraries: wave, pyttsx3, pyaudio, faster-whisper
