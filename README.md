@@ -4,9 +4,9 @@
 This project integrates __Unreal Engine__ and the __AirSim__ drone simulation platform with __LLaMA-based language models__, __speech recognition__, and __gaze tracking__ functionality. The goal is to allow users to control a drone through both voice commands and gaze tracking, processed by the LLaMA 3.1 8B Instruct model and the gaze tracking system.
 
 ## Features
-__Gaze Tracking__: Allows drone control based on where the user is looking.
-__Drone Simulation__: Controlled via Unreal Engine with AirSim.
-__Speech Recognition__: Converts voice commands to text and uses LLM model to processess texy commands.
+__Gaze Tracking__: Allows drone control based on where the user is looking.<br>
+__Drone Simulation__: Controlled via Unreal Engine with AirSim.<br>
+__Speech Recognition__: Converts voice commands to text and uses LLM model to processess texy commands.<br>
 
 ## Prerequisites
 Before getting started, make sure you have the following installed:
