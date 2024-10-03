@@ -20,7 +20,7 @@ Python Libraries: wave, pyttsx3, pyaudio, faster-whisper<br>
 
 ## Setup Guide
 ### 1. Install Unreal Engine and AirSim
-   a. Download and install Unreal Engine from [Unreal Engine Official Site](https://www.unrealengine.com/en-US/download).
+   a. Download and install Unreal Engine from [Unreal Engine Official Site](https://www.unrealengine.com/en-US/download).<br>
    b. Clone and set up AirSim for Unreal Engine by following the steps in https://github.com/Microsoft/AirSim.
 
 ```
