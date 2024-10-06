@@ -40,6 +40,9 @@ python --version
 ```
 pip install torch transformers sentencepiece
 pip install pyaudio wave pyttsx3 faster-whisper
+pip install numpy
+pip install opencv-python
+pip install dlib
 ```
 3. Install LLaMA 3.1 8B Instruct Model
 ```
@@ -54,9 +57,10 @@ model = AutoModelForCausalLM.from_pretrained(model_name)
 To enable speech recognition, we’ll use the faster-whisper library. You’ll also need pyaudio for capturing audio and pyttsx3 for text-to-speech feedback.
 
 5. Gaze Tracking Integration
+To enable gaze tracking, we'll use the cv2 library. You'll also need numpy and dlib for assistance in the processing of camera data.
 
 6. Integrate Speech and Gaze Tracking Commands into AirSim
-Once you have speech transcription using Whisper and gaze tracking using your chosen SDK, integrate them with AirSim to control the drone.
+Once you have speech transcription using Whisper and gaze tracking using your chosen SDK, run them along with AirSim to control the drone.
 
 Speech Commands: Map commands like "move forward" or "go left" to drone controls.
 Gaze Control: Use gaze data to adjust the drone’s direction or camera view in real time.
