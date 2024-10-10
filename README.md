@@ -1,29 +1,17 @@
-# Unreal Engine & AirSim Drone Simulation with LLaMA Speech Recognition Integration 
+# Unreal Engine AirSim Drone Simulation with Gaze Tracking and LLaMA Speech Recognition 
 ## Overview
 
-This project integrates __Unreal Engine__ and the __AirSim__ drone simulation platform with __LLaMA-based language models__, __speech recognition__, and __gaze tracking__ functionality. The goal is to allow users to control a drone through both voice commands and gaze tracking, processed by the LLaMA 3.1 8B Instruct model and the gaze tracking system.
+This project integrates __Unreal Engine__ using the __AirSim__ drone extension platform with __gaze tracking__, __LLaMA-based language models__, and __speech recognition__ functionality. The goal is to allow users to control a drone through both gaze tracking and voice commands, processed by the LLaMA 3.1 8B Instruct model.
 
 ## Features
+__Drone Simulation__: Implemented via Unreal Engine with AirSim.<br>
 __Gaze Tracking__: Allows drone control based on where the user is looking.<br>
-__Drone Simulation__: Controlled via Unreal Engine with AirSim.<br>
-__Speech Recognition__: Converts voice commands to text and uses LLM model to processess texy commands.<br>
-
-## Prerequisites
-Before getting started, make sure you have the following installed:
-
-Unreal Engine (Recommand v4.27)
-Microsoft AirSim  
-Python 3.8 or later<br>
-PyAudio<br>
-LLaMA 3.1 8B Instruct Model<br>
-Whisper Model for Speech Recognition<br>
-Python Libraries: wave, pyttsx3, pyaudio, faster-whisper<br>
+__Speech Recognition__: Converts voice input to text and uses LLM model to processess into commands.<br>
 
 ## Setup Guide
 ### 1. Install Unreal Engine and AirSim
-   a. Download and install Unreal Engine from [Unreal Engine Official Site](https://www.unrealengine.com/en-US/download).<br>
-   b. Clone and set up AirSim for Unreal Engine by following the steps in https://github.com/Microsoft/AirSim.
-
+1. Download and install Unreal Engine (Recommended v4.27) from [Unreal Engine](https://www.unrealengine.com/en-US/download).
+2. Clone and set up AirSim for Unreal Engine by following the steps from [AirSim]https://github.com/Microsoft/AirSim.
 ```
 git clone https://github.com/microsoft/AirSim.git
 cd AirSim
@@ -32,16 +20,16 @@ cd AirSim
 ```
 
 ### 2. Set Up Python Environment
-1. Install Python: Ensure that you have Python 3.8 or later installed. You can check your Python version by running:
+1. Ensure that you have Python 3.8 or later installed. You can check your Python version by running:
 ```
 python --version
 ```
-2. Install Required Python Libraries: Run the following commands to install the necessary packages:
+2. Install Required Python Libraries: Run the following commands to install the necessary packages using pip:
 ```
 pip install torch transformers sentencepiece
 pip install pyaudio wave pyttsx3 faster-whisper
-pip install numpy
 pip install opencv-python
+pip install numpy
 pip install dlib
 ```
 3. Install LLaMA 3.1 8B Instruct Model
@@ -53,17 +41,16 @@ model_name = "facebook/llama-3.1-8B-instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 ```
-4. Speech Recognition Integration
-To enable speech recognition, we’ll use the faster-whisper library. You’ll also need pyaudio for capturing audio and pyttsx3 for text-to-speech feedback.
 
-5. Gaze Tracking Integration
-To enable gaze tracking, we'll use the cv2 library. You'll also need numpy and dlib for assistance in the processing of camera data.
+### 3. Integration of Control Methods
+Speech Recognition Integration<br>
+To enable speech recognition, we use the faster-whisper library. You’ll also need pyaudio for capturing audio and pyttsx3 for text-to-speech feedback.
 
-6. Integrate Speech and Gaze Tracking Commands into AirSim
-Once you have speech transcription using Whisper and gaze tracking using your chosen SDK, run them along with AirSim to control the drone.
+Gaze Tracking Integration<br>
+To enable gaze tracking, we use the cv2 library. You'll also need numpy and dlib for assistance in the processing of camera data.
 
+Gaze Control: Use gaze data to adjust the drone’s position and direction.
 Speech Commands: Map commands like "move forward" or "go left" to drone controls.
-Gaze Control: Use gaze data to adjust the drone’s direction or camera view in real time.
 
 ## Usage
 Run Unreal Engine with AirSim: Open your Unreal Engine project with AirSim integrated and start the drone simulation.<br>
@@ -71,7 +58,8 @@ Activate Speech and Gaze Tracking: Run the Python scripts for speech recognition
 Issue Voice and Gaze Commands: Speak into your microphone or use your gaze to control the drone’s movements in the AirSim simulation.<br>
 
 ## Acknowledgements
-Meta AI for LLaMA models.<br>
-Microsoft AirSim for the drone simulation platform.<br>
-Whisper for speech recognition.<br>
-Hugging Face for the transformers library.<br>
+* Epic Games for Unreal Engine
+* Microsoft AirSim for the drone simulator.
+* Whisper for speech recognition.
+* Meta AI for LLaMA models.
+* Hugging Face for the transformers library.
