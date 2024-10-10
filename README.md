@@ -11,7 +11,7 @@ __Speech Recognition__: Converts voice input to text and uses LLM model to proce
 ## Setup Guide
 ### 1. Install Unreal Engine and AirSim
 1. Download and install Unreal Engine (Recommended v4.27) from [Unreal Engine](https://www.unrealengine.com/en-US/download).
-2. Clone and set up AirSim for Unreal Engine by following the steps from [AirSim]https://github.com/Microsoft/AirSim.
+2. Clone and set up AirSim for Unreal Engine by following the steps from [AirSim](https://github.com/Microsoft/AirSim).
 ```
 git clone https://github.com/microsoft/AirSim.git
 cd AirSim
