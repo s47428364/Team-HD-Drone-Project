@@ -1,4 +1,4 @@
-# Unreal Engine AirSim Drone Simulation with Gaze Tracking and LLaMA Speech Recognition 
+<img width="328" alt="image" src="https://github.com/user-attachments/assets/5146a007-716c-42dd-abd7-5bbe0a2989a8"># Unreal Engine AirSim Drone Simulation with Gaze Tracking and LLaMA Speech Recognition 
 ## Overview
 
 This project integrates __Unreal Engine__ using the __AirSim__ drone extension platform with __gaze tracking__, __LLaMA-based language models__, and __speech recognition__ functionality. The goal is to allow users to control a drone through both gaze tracking and voice commands, processed by the LLaMA 3.1 8B Instruct model.
@@ -11,7 +11,7 @@ __Speech Recognition__: Converts voice input to text and uses LLM model to proce
 ## Setup Guide
 ### 1. Install Unreal Engine and AirSim
 1. Download and install Unreal Engine (Recommended v4.27) from [Unreal Engine](https://www.unrealengine.com/en-US/download).
-2. Clone and set up AirSim for Unreal Engine by following the steps from [AirSim](https://github.com/Microsoft/AirSim).
+2. Clone and set up AirSim for Unreal Engine by https://github.com/microsoft/PromptCraft-Robotics/releases.
 ```
 git clone https://github.com/microsoft/AirSim.git
 cd AirSim
@@ -32,17 +32,35 @@ pip install opencv-python
 pip install numpy
 pip install dlib
 ```
-3. Install LLaMA 3.1 8B Instruct Model
+3. Install OpenAi module
 ```
-from transformers import LlamaTokenizer, LlamaForCausalLM
-
-# Load LLaMA 8B Model and Tokenizer
-model_name = "facebook/llama-3.1-8B-instruct"  
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
+import openai
+import re
+import argparse
+from airsim_wrapper import *
+import math
+import numpy as np
+import os
+import json
+import time
+import record_command_and_transcribe as rct
+```
+Set up an API key by visiting https://platform.openai.com/account/api-keys. Copy the API key and paste it in the OPENAI_API_KEY field of config.json.
+```
+openai.api_key = config["OPENAI_API_KEY"]
 ```
 
-### 3. Integration of Control Methods
+### 3.Run Drone Simulator
+Before start to complie code, your file structure should be as similar with below<br>
+<img width="203" alt="image" src="https://github.com/user-attachments/assets/dd27bb76-711b-4cfb-82c7-62d0dad42592">
+1. Click on run.bat on the AirSimInspection directory to run simulator.<br>
+2. Run chatgpt_airsim.py to start control the simulator.<br>
+2. When you heard "Initializing AirSim..." and "Welcome to the AirSim chatbot! I am ready to help you with your AirSim questions and commands.", it means the simulator succesfully run.<br>
+3. You can say commands for example "Take off", "Move forward 10 units and go right 2 units" after "Recording 5 seconds."<br>
+4. If you would like to stop code running, you can say "Thank you, you can quit" or just "quit" to quit the project. The chatbot would response "Thank you for using the AirSim chatbot! Goodbye!" to ensure responsiveness.
+
+
+### 4. Integration of Control Methods
 Speech Recognition Integration<br>
 To enable speech recognition, we use the faster-whisper library. You’ll also need pyaudio for capturing audio and pyttsx3 for text-to-speech feedback.
 
