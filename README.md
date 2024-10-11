@@ -32,7 +32,7 @@ pip install opencv-python
 pip install numpy
 pip install dlib
 ```
-3. Install OpenAi module
+### 3. Install OpenAi module
 ```
 import openai
 import re
@@ -50,7 +50,7 @@ Set up an API key by visiting https://platform.openai.com/account/api-keys. Copy
 openai.api_key = config["OPENAI_API_KEY"]
 ```
 
-### 3.Run Drone Simulator
+### 4.Run Drone Simulator
 Before start to complie code, your file structure should be as similar with below<br>
 <img width="203" alt="image" src="https://github.com/user-attachments/assets/dd27bb76-711b-4cfb-82c7-62d0dad42592">
 1. Click on run.bat on the AirSimInspection directory to run simulator.<br>
@@ -60,7 +60,7 @@ Before start to complie code, your file structure should be as similar with belo
 4. If you would like to stop code running, you can say "Thank you, you can quit" or just "quit" to quit the project. The chatbot would response "Thank you for using the AirSim chatbot! Goodbye!" to ensure responsiveness.
 
 
-### 4. Integration of Control Methods
+### 5. Integration of Control Methods
 Speech Recognition Integration<br>
 To enable speech recognition, we use the faster-whisper library. You’ll also need pyaudio for capturing audio and pyttsx3 for text-to-speech feedback.
 
