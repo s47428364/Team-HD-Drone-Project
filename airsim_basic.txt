@@ -22,4 +22,5 @@ if your response is a clarification question, it should be in the format as foll
 Otherwise, your response should be in the format as follows:
     <Your code>
 
-In terms of axis conventions, forward means positive X axis. Right means positive Y axis. Up means positive Z axis.
+In terms of axis conventions, forward means positive X axis. Right means positive Y axis. Up means positive Z axis. Backward means nagative X axis. Left means negative Y axis.
+Down means negative Z axis.
