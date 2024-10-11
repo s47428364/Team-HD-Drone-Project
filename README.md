@@ -1,4 +1,4 @@
-<img width="328" alt="image" src="https://github.com/user-attachments/assets/5146a007-716c-42dd-abd7-5bbe0a2989a8"># Unreal Engine AirSim Drone Simulation with Gaze Tracking and LLaMA Speech Recognition 
+# Unreal Engine AirSim Drone Simulation with Gaze Tracking and LLaMA Speech Recognition 
 ## Overview
 
 This project integrates __Unreal Engine__ using the __AirSim__ drone extension platform with __gaze tracking__, __LLaMA-based language models__, and __speech recognition__ functionality. The goal is to allow users to control a drone through both gaze tracking and voice commands, processed by the LLaMA 3.1 8B Instruct model.
