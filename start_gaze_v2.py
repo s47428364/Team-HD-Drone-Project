@@ -2,7 +2,7 @@
 import cv2 as cv
 import numpy as np
 import mediapipe as mp
-import math
+
 import socket
 import argparse
 import time
@@ -12,6 +12,7 @@ import os
 from AngleBuffer import AngleBuffer
 
 import airsim
+import keyboard
 client = airsim.MultirotorClient()
 client.confirmConnection()
 client.enableApiControl(True)
@@ -168,7 +169,6 @@ SERVER_ADDRESS = (SERVER_IP, 7070)
 
 origin_left = None
 origin_right = None
-last_command = ""
 
 # Function to calculate vector position
 def vector_position(point1, point2):
@@ -314,7 +314,10 @@ def blinking_ratio(landmarks):
 
     return ratio
 
-def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, threshold=2):
+def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, looks, threshold=2):
+    if looks != "Forward":
+        return "no movement (INVALID POSITION)"
+    
     left_eye_dx = curr_left_eye[0] - prev_left_eye[0]
     left_eye_dy = curr_left_eye[1] - prev_left_eye[1]
     
@@ -325,6 +328,10 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, t
     avg_dy = (left_eye_dy + right_eye_dy) // 2
     
     speed = 1
+    
+    #DEBUG
+    if keyboard.is_pressed('space'):
+        client.takeoffAsync().join() # Take off
 
     if abs(avg_dx) < threshold and avg_dy < -threshold:
         client.moveByVelocityAsync(0, 0, 1, speed).join()  # Move up
@@ -333,25 +340,25 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, t
         client.moveByVelocityAsync(0, 0, -1, speed).join()  # Move down
         return "s"
     elif avg_dx < -threshold and abs(avg_dy) < threshold:
-        client.moveByVelocityAsync(-1, 0, 0, speed).join()  # Move left
+        client.moveByVelocityAsync(0, -1, 0, speed).join()  # Move left
         return "a"
     elif avg_dx > threshold and abs(avg_dy) < threshold:
-        client.moveByVelocityAsync(1, 0, 0, speed).join()  # Move right
+        client.moveByVelocityAsync(0, 1, 0, speed).join()  # Move right
         return "d"
     elif avg_dx > threshold and avg_dy < -threshold:
-        client.moveByVelocityAsync(1, 0, 1, speed).join()  # Move up right
+        client.moveByVelocityAsync(0, 1, 1, speed).join()  # Move up right
         return "wd"
     elif avg_dx < -threshold and avg_dy < -threshold:
-        client.moveByVelocityAsync(-1, 0, 1, speed).join()  # Move up left
+        client.moveByVelocityAsync(0, -1, 1, speed).join()  # Move up left
         return "wa"
     elif avg_dx > threshold and avg_dy > threshold:
-        client.moveByVelocityAsync(1, 0, -1, speed).join()  # Move down right
+        client.moveByVelocityAsync(0, 1, -1, speed).join()  # Move down right
         return "sd"
     elif avg_dx < -threshold and avg_dy > threshold:
-        client.moveByVelocityAsync(-1, 0, -1, speed).join()  # Move down left
+        client.moveByVelocityAsync(0, -1, -1, speed).join()  # Move down left
         return "sa"
     else:
-        return ""
+        return "no movement"
 
 # Initializing MediaPipe face mesh and camera
 if PRINT_DATA:
@@ -415,7 +422,7 @@ try:
         rgb_frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
         img_h, img_w = frame.shape[:2]
         results = mp_face_mesh.process(rgb_frame)
-
+        
         if results.multi_face_landmarks:
             mesh_points = np.array(
                 [
@@ -468,13 +475,15 @@ try:
             z = angles[2] * 360
 
             # if angle cross the values then
-            threshold_angle = 10
+            threshold_angle = 4
+            face_looks = "Forward"
+            print(angle_x, -(threshold_angle + 1))
             # See where the user's head tilting
             if angle_y < -threshold_angle:
                 face_looks = "Left"
             elif angle_y > threshold_angle:
                 face_looks = "Right"
-            elif angle_x < -threshold_angle:
+            elif angle_x < -1:
                 face_looks = "Down"
             elif angle_x > threshold_angle:
                 face_looks = "Up"
@@ -557,8 +566,6 @@ try:
                 origin_left = [l_cx, l_cy]
                 origin_right = [r_cx, r_cy]
             
-            command = eye_movement(origin_left, origin_right, [l_cx, l_cy], [r_cx, r_cy], 10)
-            
             # Printing data if enabled
             if PRINT_DATA:
                 print(f"Total Blinks: {TOTAL_BLINKS}")
@@ -566,7 +573,6 @@ try:
                 print(f"Right Eye Center X: {r_cx} Y: {r_cy}")
                 print(f"Left Iris Relative Pos Dx: {l_dx} Dy: {l_dy}")
                 print(f"Right Iris Relative Pos Dx: {r_dx} Dy: {r_dy}\n")
-                print(f"Movement Direction: {command}\n")
                 # Check if head pose estimation is enabled
                 if ENABLE_HEAD_POSE:
                     pitch, yaw, roll = estimate_head_pose(mesh_points, (img_h, img_w))
@@ -586,9 +592,11 @@ try:
                         yaw -= initial_yaw
                         roll -= initial_roll
                     
-                    
                     if PRINT_DATA:
                         print(f"Head Pose Angles: Pitch={pitch}, Yaw={yaw}, Roll={roll}")
+                    
+                    command = eye_movement(origin_left, origin_right, [l_cx, l_cy], [r_cx, r_cy], face_looks, 10)
+                    print(f"Movement Direction: {command}\n")
             # Logging data
             if LOG_DATA:
                 timestamp = int(time.time() * 1000)  # Current timestamp in milliseconds
@@ -627,8 +635,6 @@ try:
                     cv.putText(frame, f"Pitch: {int(pitch)}", (30, 110), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
                     cv.putText(frame, f"Yaw: {int(yaw)}", (30, 140), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
                     cv.putText(frame, f"Roll: {int(roll)}", (30, 170), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
-
-
         
         # Displaying the processed frame
         cv.imshow("Eye Tracking", frame)
@@ -636,7 +642,20 @@ try:
         key = cv.waitKey(1) & 0xFF
 
         # Calibrate on 'c' key press
-        if key == ord('c'):
+        valid_head = True
+        if origin_left is not None and origin_right is not None:
+            left_eye_dx = origin_left[0] - l_cx
+            left_eye_dy = origin_left[1] - l_cy
+            
+            right_eye_dx = origin_right[0] - r_cx
+            right_eye_dy = origin_right[1] - r_cy
+
+            avg_dx = (left_eye_dx + right_eye_dx) // 2
+            avg_dy = (left_eye_dy + right_eye_dy) // 2
+            
+            valid_head = abs(avg_dx) < 20 and abs(avg_dy) < 20
+        
+        if key == ord('c') or not valid_head:
             origin_left = origin_right = None
             
             initial_pitch, initial_yaw, initial_roll = pitch, yaw, roll
