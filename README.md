@@ -1,7 +1,7 @@
 # Unreal Engine AirSim Drone Simulation with Gaze Tracking and LLaMA Speech Recognition 
 ## Overview
 
-This project integrates __Unreal Engine__ using the __AirSim__ drone extension platform with __gaze tracking__, __LLaMA-based language models__, and __speech recognition__ functionality. The goal is to allow users to control a drone through both gaze tracking and voice commands, processed by the LLaMA 3.1 8B Instruct model.
+This project integrates __Unreal Engine__ using the __AirSim__ drone extension platform with __gaze tracking__, __LLaMA-based language models__, and __speech recognition__ functionality. The goal is to allow users to control a drone through both gaze tracking and voice commands, processed by OpenAI Api module.
 
 ## Features
 __Drone Simulation__: Implemented via Unreal Engine with AirSim.<br>
@@ -34,16 +34,7 @@ pip install dlib
 ```
 ### 3. Install OpenAi module
 ```
-import openai
-import re
-import argparse
-from airsim_wrapper import *
-import math
-import numpy as np
-import os
-import json
-import time
-import record_command_and_transcribe as rct
+pip install openai
 ```
 Set up an API key by visiting https://platform.openai.com/account/api-keys. Copy the API key and paste it in the OPENAI_API_KEY field of config.json.
 ```
@@ -51,13 +42,19 @@ openai.api_key = config["OPENAI_API_KEY"]
 ```
 
 ### 4.Run Drone Simulator
-Before start to complie code, your file structure should be as similar with below<br>
-<img width="203" alt="image" src="https://github.com/user-attachments/assets/dd27bb76-711b-4cfb-82c7-62d0dad42592">
-1. Click on run.bat on the AirSimInspection directory to run simulator.<br>
-2. Run chatgpt_airsim.py to start control the simulator.<br>
-2. When you heard "Initializing AirSim..." and "Welcome to the AirSim chatbot! I am ready to help you with your AirSim questions and commands.", it means the simulator succesfully run.<br>
-3. You can say commands for example "Take off", "Move forward 10 units and go right 2 units" after "Recording 5 seconds."<br>
-4. If you would like to stop code running, you can say "Thank you, you can quit" or just "quit" to quit the project. The chatbot would response "Thank you for using the AirSim chatbot! Goodbye!" to ensure responsiveness.
+1. Start the Simulator:<br>
+Navigate to the AirSimInspection directory and double-click run.bat to launch the simulator.<br>
+2. Initialize Chatbot Control:<br>
+Run chatgpt_airsim.py to enable the chatbot interface.<br>
+You’ll hear “Initializing AirSim...” followed by “Welcome to the AirSim chatbot! I am ready to help you with your AirSim questions and commands.” This confirms that the simulator and chatbot are running successfully.<br>
+3. Give Voice Commands:<br>
+After the initialization, you can issue commands to the simulator, such as:<br>
+"Take off" to lift the drone into the air.<br>
+"Move forward 10 units and go right 2 units" to navigate in specified directions.<br>
+You’ll receive feedback prompts, such as "Recording 5 seconds," to confirm the simulator is executing your command.<br>
+4. End the Session:<br>
+To stop the code and end the session, you can say, "Thank you, you can quit" or simply "quit."<br>
+The chatbot will respond, “Thank you for using the AirSim chatbot! Goodbye!” to indicate a successful shutdown.<br>
 
 
 ### 5. Integration of Control Methods
@@ -70,10 +67,6 @@ To enable gaze tracking, we use the cv2 library. You'll also need numpy and dlib
 Gaze Control: Use gaze data to adjust the drone’s position and direction.
 Speech Commands: Map commands like "move forward" or "go left" to drone controls.
 
-## Usage
-Run Unreal Engine with AirSim: Open your Unreal Engine project with AirSim integrated and start the drone simulation.<br>
-Activate Speech and Gaze Tracking: Run the Python scripts for speech recognition and gaze tracking.<br>
-Issue Voice and Gaze Commands: Speak into your microphone or use your gaze to control the drone’s movements in the AirSim simulation.<br>
 
 ## Acknowledgements
 * Epic Games for Unreal Engine
