@@ -36,7 +36,7 @@ NOSE_TO_CAMERA_DISTANCE = 600  # [mm]
 
 ## Configuration Parameters
 # PRINT_DATA: Enable or disable the printing of data to the console for debugging.
-PRINT_DATA = True
+PRINT_DATA = False
 
 # DEFAULT_WEBCAM: Default camera source index. '0' usually refers to the built-in webcam.
 DEFAULT_WEBCAM = 0
@@ -45,7 +45,7 @@ DEFAULT_WEBCAM = 0
 SHOW_ALL_FEATURES = False
 
 # LOG_DATA: Enable or disable logging of data to a CSV file.
-LOG_DATA = True
+LOG_DATA = False
 
 # LOG_ALL_FEATURES: If True, log all facial landmarks to the CSV file.
 LOG_ALL_FEATURES = False
@@ -66,7 +66,7 @@ SERVER_PORT = 7070
 
 ## Blink Detection Parameters
 # SHOW_ON_SCREEN_DATA: If True, display blink count and head pose angles on the video feed.
-SHOW_ON_SCREEN_DATA = True
+SHOW_ON_SCREEN_DATA = False
 
 # TOTAL_BLINKS: Counter for the total number of blinks detected.
 TOTAL_BLINKS = 0
@@ -116,7 +116,7 @@ calibrated = False
 PRINT_DATA = True  # Enable/disable data printing
 DEFAULT_WEBCAM = 0  # Default webcam number
 SHOW_ALL_FEATURES = True  # Show all facial landmarks if True
-LOG_DATA = True  # Enable logging to CSV
+LOG_DATA = False  # Enable logging to CSV
 LOG_ALL_FEATURES = False  # Log all facial landmarks if True
 LOG_FOLDER = "logs"  # Folder to store log files
 
@@ -169,6 +169,11 @@ SERVER_ADDRESS = (SERVER_IP, 7070)
 
 origin_left = None
 origin_right = None
+
+should_reset = False
+
+avg_x = []
+avg_y = []
 
 # Function to calculate vector position
 def vector_position(point1, point2):
@@ -314,8 +319,8 @@ def blinking_ratio(landmarks):
 
     return ratio
 
-def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, looks, threshold=2):
-    if looks != "Forward":
+def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, looks):
+    if looks != "Forward" or should_reset:
         return "no movement (INVALID POSITION)"
     
     left_eye_dx = curr_left_eye[0] - prev_left_eye[0]
@@ -324,41 +329,49 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, l
     right_eye_dx = curr_right_eye[0] - prev_right_eye[0]
     right_eye_dy = curr_right_eye[1] - prev_right_eye[1]
     
-    avg_dx = (left_eye_dx + right_eye_dx) // 2
-    avg_dy = (left_eye_dy + right_eye_dy) // 2
+    dx = (left_eye_dx + right_eye_dx) // 2
+    dy = (left_eye_dy + right_eye_dy) // 2
+    
+    if len(avg_x) == 5:
+        avg_x.clear()
+        avg_y.clear()
+        
+    if len(avg_x) < 5:
+        avg_x.append(dx)
+        avg_y.append(dy)
+    
+    avg_dx = sum(avg_x) / len(avg_x)
+    avg_dy = sum(avg_y) / len(avg_y)
     
     speed = 1
-    
     #DEBUG
     if keyboard.is_pressed('space'):
         client.takeoffAsync().join() # Take off
-
-    if abs(avg_dx) < threshold and avg_dy < -threshold:
+    if abs(avg_dx) < 7 and avg_dy < -5:
         client.moveByVelocityAsync(0, 0, 1, speed).join()  # Move up
-        return "w"
-    elif abs(avg_dx) < threshold and avg_dy > threshold:
+        return "UP"
+    elif abs(avg_dx) < 7 and avg_dy > 5:
         client.moveByVelocityAsync(0, 0, -1, speed).join()  # Move down
-        return "s"
-    elif avg_dx < -threshold and abs(avg_dy) < threshold:
+        return "DOWN"
+    elif avg_dx < -7 and abs(avg_dy) < 7:
         client.moveByVelocityAsync(0, -1, 0, speed).join()  # Move left
-        return "a"
-    elif avg_dx > threshold and abs(avg_dy) < threshold:
+        return "LEFT"
+    elif avg_dx > 5 and abs(avg_dy) < 5:
         client.moveByVelocityAsync(0, 1, 0, speed).join()  # Move right
-        return "d"
-    elif avg_dx > threshold and avg_dy < -threshold:
+        return "RIGHT"
+    elif avg_dx > 5 and avg_dy < -8:
         client.moveByVelocityAsync(0, 1, 1, speed).join()  # Move up right
-        return "wd"
-    elif avg_dx < -threshold and avg_dy < -threshold:
+        return "UP-RIGHT"
+    elif avg_dx < -5 and avg_dy < -8:
         client.moveByVelocityAsync(0, -1, 1, speed).join()  # Move up left
-        return "wa"
-    elif avg_dx > threshold and avg_dy > threshold:
+        return "UP-LEFT"
+    elif avg_dx > 5 and avg_dy > 8:
         client.moveByVelocityAsync(0, 1, -1, speed).join()  # Move down right
-        return "sd"
-    elif avg_dx < -threshold and avg_dy > threshold:
+        return "DOWN-RIGHT"
+    elif avg_dx < -5 and avg_dy > 8:
         client.moveByVelocityAsync(0, -1, -1, speed).join()  # Move down left
-        return "sa"
-    else:
-        return "no movement"
+        return "DOWN-LEFT"
+    return "no movement"
 
 # Initializing MediaPipe face mesh and camera
 if PRINT_DATA:
@@ -475,15 +488,15 @@ try:
             z = angles[2] * 360
 
             # if angle cross the values then
-            threshold_angle = 4
+            threshold_angle = 3
             face_looks = "Forward"
-            print(angle_x, -(threshold_angle + 1))
+            
             # See where the user's head tilting
             if angle_y < -threshold_angle:
                 face_looks = "Left"
             elif angle_y > threshold_angle:
                 face_looks = "Right"
-            elif angle_x < -1:
+            elif angle_x < -2:
                 face_looks = "Down"
             elif angle_x > threshold_angle:
                 face_looks = "Up"
@@ -568,11 +581,11 @@ try:
             
             # Printing data if enabled
             if PRINT_DATA:
-                print(f"Total Blinks: {TOTAL_BLINKS}")
-                print(f"Left Eye Center X: {l_cx} Y: {l_cy}")
-                print(f"Right Eye Center X: {r_cx} Y: {r_cy}")
-                print(f"Left Iris Relative Pos Dx: {l_dx} Dy: {l_dy}")
-                print(f"Right Iris Relative Pos Dx: {r_dx} Dy: {r_dy}\n")
+                # print(f"Total Blinks: {TOTAL_BLINKS}")
+                # print(f"Left Eye Center X: {l_cx} Y: {l_cy}")
+                # print(f"Right Eye Center X: {r_cx} Y: {r_cy}")
+                # print(f"Left Iris Relative Pos Dx: {l_dx} Dy: {l_dy}")
+                # print(f"Right Iris Relative Pos Dx: {r_dx} Dy: {r_dy}\n")
                 # Check if head pose estimation is enabled
                 if ENABLE_HEAD_POSE:
                     pitch, yaw, roll = estimate_head_pose(mesh_points, (img_h, img_w))
@@ -592,11 +605,11 @@ try:
                         yaw -= initial_yaw
                         roll -= initial_roll
                     
-                    if PRINT_DATA:
-                        print(f"Head Pose Angles: Pitch={pitch}, Yaw={yaw}, Roll={roll}")
+                    # if PRINT_DATA:
+                        # print(f"Head Pose Angles: Pitch={int(pitch)}, Yaw={int(yaw)}, Roll={int(roll)}")
                     
-                    command = eye_movement(origin_left, origin_right, [l_cx, l_cy], [r_cx, r_cy], face_looks, 10)
-                    print(f"Movement Direction: {command}\n")
+                    command = eye_movement(origin_left, origin_right, [l_cx, l_cy], [r_cx, r_cy], face_looks)
+                    print(f"Movement Direction: {command}")
             # Logging data
             if LOG_DATA:
                 timestamp = int(time.time() * 1000)  # Current timestamp in milliseconds
@@ -642,25 +655,31 @@ try:
         key = cv.waitKey(1) & 0xFF
 
         # Calibrate on 'c' key press
-        valid_head = True
-        if origin_left is not None and origin_right is not None:
-            left_eye_dx = origin_left[0] - l_cx
-            left_eye_dy = origin_left[1] - l_cy
-            
-            right_eye_dx = origin_right[0] - r_cx
-            right_eye_dy = origin_right[1] - r_cy
+        if not should_reset:
+            if origin_left is not None and origin_right is not None:
+                left_eye_dx = origin_left[0] - l_cx
+                left_eye_dy = origin_left[1] - l_cy
+                
+                right_eye_dx = origin_right[0] - r_cx
+                right_eye_dy = origin_right[1] - r_cy
 
-            avg_dx = (left_eye_dx + right_eye_dx) // 2
-            avg_dy = (left_eye_dy + right_eye_dy) // 2
+                avg_dx = (left_eye_dx + right_eye_dx) // 2
+                avg_dy = (left_eye_dy + right_eye_dy) // 2
+                
+                should_reset = not (abs(avg_dx) < 40 and abs(avg_dy) < 40)
             
-            valid_head = abs(avg_dx) < 20 and abs(avg_dy) < 20
         
-        if key == ord('c') or not valid_head:
-            origin_left = origin_right = None
-            
-            initial_pitch, initial_yaw, initial_roll = pitch, yaw, roll
-            if PRINT_DATA:
-                print("Head pose recalibrated.")
+        if key == ord('c') or should_reset:
+            if face_looks == "Forward":
+                origin_left = None
+                origin_right = None
+                avg_x.clear()
+                avg_y.clear()
+                should_reset = False
+                
+                initial_pitch, initial_yaw, initial_roll = pitch, yaw, roll
+                if PRINT_DATA:
+                    print("Head pose recalibrated.")
                 
         # Inside the main loop, handle the 'r' key press
         if key == ord('r'):
