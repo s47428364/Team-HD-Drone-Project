@@ -175,6 +175,9 @@ should_reset = False
 avg_x = []
 avg_y = []
 
+avg_x_head = []
+avg_y_head = []
+
 # Function to calculate vector position
 def vector_position(point1, point2):
     x1, y1 = point1.ravel()
@@ -320,9 +323,6 @@ def blinking_ratio(landmarks):
     return ratio
 
 def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, looks):
-    if looks != "Forward" or should_reset:
-        return "no movement (INVALID POSITION)"
-    
     left_eye_dx = curr_left_eye[0] - prev_left_eye[0]
     left_eye_dy = curr_left_eye[1] - prev_left_eye[1]
     
@@ -331,6 +331,20 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, l
     
     dx = (left_eye_dx + right_eye_dx) // 2
     dy = (left_eye_dy + right_eye_dy) // 2
+    
+    if should_reset:
+        if len(avg_x_head) == 20:
+            ax = sum(avg_x_head) / len(avg_x_head)
+            ay = sum(avg_y_head) / len(avg_y_head)
+            if abs(ax - avg_x_head[0]) > 2 or abs(ay - avg_y_head[0]) > 2:
+                return "RESET"
+            avg_x_head.clear()
+            avg_y_head.clear()
+            
+        if len(avg_x_head) < 20:
+            avg_x_head.append(dx)
+            avg_y_head.append(dy)
+        return "NO-MOVEMENT (INVALID)"
     
     if len(avg_x) == 5:
         avg_x.clear()
@@ -371,7 +385,7 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, l
     elif avg_dx < -8 and avg_dy > 8:
         client.moveByVelocityAsync(0, -1, -1, speed).join()  # Move down left
         return "DOWN-LEFT"
-    return "no movement"
+    return "NO-MOVEMENT"
 
 # Initializing MediaPipe face mesh and camera
 if PRINT_DATA:
@@ -425,6 +439,7 @@ try:
     angle_buffer = AngleBuffer(size=MOVING_AVERAGE_WINDOW)  # Adjust size for smoothing
 
     while True:
+        command = ""
         ret, frame = cap.read()
         if not ret:
             break
@@ -578,7 +593,6 @@ try:
             if origin_left is None or origin_right is None:
                 origin_left = [l_cx, l_cy]
                 origin_right = [r_cx, r_cy]
-            
             # Printing data if enabled
             if PRINT_DATA:
                 # print(f"Total Blinks: {TOTAL_BLINKS}")
@@ -666,20 +680,21 @@ try:
                 avg_dx = (left_eye_dx + right_eye_dx) // 2
                 avg_dy = (left_eye_dy + right_eye_dy) // 2
                 
-                should_reset = not (abs(avg_dx) < 40 and abs(avg_dy) < 40)
+                should_reset = not (abs(avg_dx) < 45 and abs(avg_dy) < 45)
             
         
-        if key == ord('c') or should_reset:
-            if not command == "no movement":
-                origin_left = None
-                origin_right = None
-                avg_x.clear()
-                avg_y.clear()
-                should_reset = False
-                
-                initial_pitch, initial_yaw, initial_roll = pitch, yaw, roll
-                if PRINT_DATA:
-                    print("Head pose recalibrated.")
+        if key == ord('c') or command == "RESET":
+            origin_left = None
+            origin_right = None
+            avg_x.clear()
+            avg_y.clear()
+            avg_x_head.clear()
+            avg_y_head.clear()
+            should_reset = False
+            
+            initial_pitch, initial_yaw, initial_roll = pitch, yaw, roll
+            if PRINT_DATA:
+                print("Head pose recalibrated.")
                 
         # Inside the main loop, handle the 'r' key press
         if key == ord('r'):
