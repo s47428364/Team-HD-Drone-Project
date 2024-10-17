@@ -380,10 +380,10 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye):
     if keyboard.is_pressed('space'):
         client.takeoffAsync().join()  # Take off
     if abs(avg_dx) < 7 and avg_dy < -6:
-        client.moveByVelocityAsync(0, 0, 1, speed).join()  # Move up
+        client.moveByVelocityAsync(0, 0, -1, speed).join()  # Move up
         return "UP"
     elif abs(avg_dx) < 7 and avg_dy > 8:
-        client.moveByVelocityAsync(0, 0, -1, speed).join()  # Move down
+        client.moveByVelocityAsync(0, 0, 1, speed).join()  # Move down
         return "DOWN"
     elif avg_dx < -8 and abs(avg_dy) < 7:
         client.moveByVelocityAsync(0, -1, 0, speed).join()  # Move left
@@ -392,16 +392,16 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye):
         client.moveByVelocityAsync(0, 1, 0, speed).join()  # Move right
         return "RIGHT"
     elif avg_dx > 8 and avg_dy < -8:
-        client.moveByVelocityAsync(0, 1, 1, speed).join()  # Move up right
+        client.moveByVelocityAsync(0, 1, -1, speed).join()  # Move up right
         return "UP-RIGHT"
     elif avg_dx < -8 and avg_dy < -8:
-        client.moveByVelocityAsync(0, -1, 1, speed).join()  # Move up left
+        client.moveByVelocityAsync(0, -1, -1, speed).join()  # Move up left
         return "UP-LEFT"
     elif avg_dx > 8 and avg_dy > 8:
-        client.moveByVelocityAsync(0, 1, -1, speed).join()  # Move down right
+        client.moveByVelocityAsync(0, 1, 1, speed).join()  # Move down right
         return "DOWN-RIGHT"
     elif avg_dx < -8 and avg_dy > 8:
-        client.moveByVelocityAsync(0, -1, -1, speed).join()  # Move down left
+        client.moveByVelocityAsync(0, -1, 1, speed).join()  # Move down left
         return "DOWN-LEFT"
     return "NO-MOVEMENT"
 
