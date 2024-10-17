@@ -644,8 +644,7 @@ try:
                         yaw -= initial_yaw
                         roll -= initial_roll
 
-                    command = eye_movement(origin_left, origin_right, [
-                                           l_cx, l_cy], [r_cx, r_cy], face_looks)
+                    command = eye_movement(origin_left, origin_right, [l_cx, l_cy], [r_cx, r_cy])
                     print(f"Movement Direction: {command}")
             # Logging data
             if LOG_DATA:
