@@ -18,23 +18,23 @@ client.confirmConnection()
 client.enableApiControl(True)
 
 
-#-----------------------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------------
 
 # Parameters Documentation
 
-## User-Specific Measurements
-# USER_FACE_WIDTH: The horizontal distance between the outer edges of the user's cheekbones in millimeters. 
+# User-Specific Measurements
+# USER_FACE_WIDTH: The horizontal distance between the outer edges of the user's cheekbones in millimeters.
 # This measurement is used to scale the 3D model points for head pose estimation.
 # Measure your face width and adjust the value accordingly.
 USER_FACE_WIDTH = 140  # [mm]
 
-## Camera Parameters (not currently used in calculations)
+# Camera Parameters (not currently used in calculations)
 # NOSE_TO_CAMERA_DISTANCE: The distance from the tip of the nose to the camera lens in millimeters.
 # Intended for future use where accurate physical distance measurements may be necessary.
 NOSE_TO_CAMERA_DISTANCE = 600  # [mm]
 
-## Configuration Parameters
+# Configuration Parameters
 # PRINT_DATA: Enable or disable the printing of data to the console for debugging.
 PRINT_DATA = False
 
@@ -53,18 +53,18 @@ LOG_ALL_FEATURES = False
 # ENABLE_HEAD_POSE: Enable the head position and orientation estimator.
 ENABLE_HEAD_POSE = True
 
-## Logging Configuration
+# Logging Configuration
 # LOG_FOLDER: Directory where log files will be stored.
 LOG_FOLDER = "logs"
 
-## Server Configuration
+# Server Configuration
 # SERVER_IP: IP address of the server for sending data via UDP (default is localhost).
 SERVER_IP = "127.0.0.1"
 
 # SERVER_PORT: Port number for the server to listen on.
 SERVER_PORT = 7070
 
-## Blink Detection Parameters
+# Blink Detection Parameters
 # SHOW_ON_SCREEN_DATA: If True, display blink count and head pose angles on the video feed.
 SHOW_ON_SCREEN_DATA = False
 
@@ -80,7 +80,7 @@ BLINK_THRESHOLD = 0.51
 # EYE_AR_CONSEC_FRAMES: Number of consecutive frames below the threshold required to confirm a blink.
 EYE_AR_CONSEC_FRAMES = 2
 
-## Head Pose Estimation Landmark Indices
+# Head Pose Estimation Landmark Indices
 # These indices correspond to the specific facial landmarks used for head pose estimation.
 LEFT_EYE_IRIS = [474, 475, 476, 477]
 RIGHT_EYE_IRIS = [469, 470, 471, 472]
@@ -97,12 +97,12 @@ RIGHT_EYE_RIGHT_CORNER_INDEX = 263
 LEFT_MOUTH_CORNER_INDEX = 61
 RIGHT_MOUTH_CORNER_INDEX = 291
 
-## MediaPipe Model Confidence Parameters
+# MediaPipe Model Confidence Parameters
 # These thresholds determine how confidently the model must detect or track to consider the results valid.
 MIN_DETECTION_CONFIDENCE = 0.8
 MIN_TRACKING_CONFIDENCE = 0.8
 
-## Angle Normalization Parameters
+# Angle Normalization Parameters
 # MOVING_AVERAGE_WINDOW: The number of frames over which to calculate the moving average for smoothing angles.
 MOVING_AVERAGE_WINDOW = 10
 
@@ -125,7 +125,8 @@ SERVER_IP = "127.0.0.1"  # Set the server IP address (localhost)
 SERVER_PORT = 7070  # Set the server port
 
 # eyes blinking variables
-SHOW_BLINK_COUNT_ON_SCREEN = True  # Toggle to show the blink count on the video feed
+# Toggle to show the blink count on the video feed
+SHOW_BLINK_COUNT_ON_SCREEN = True
 TOTAL_BLINKS = 0  # Tracks the total number of blinks detected
 EYES_BLINK_FRAME_COUNTER = (
     0  # Counts the number of consecutive frames with a potential blink
@@ -138,7 +139,7 @@ EYE_AR_CONSEC_FRAMES = (
 SERVER_ADDRESS = (SERVER_IP, SERVER_PORT)
 
 
-#If set to false it will wait for your command (hittig 'r') to start logging.
+# If set to false it will wait for your command (hittig 'r') to start logging.
 IS_RECORDING = False  # Controls whether data is being logged
 
 # Command-line arguments for camera source
@@ -178,8 +179,11 @@ avg_y = []
 avg_x_head = []
 avg_y_head = []
 
-# Function to calculate vector position
+
 def vector_position(point1, point2):
+    """
+    Function to calculate vector position
+    """
     x1, y1 = point1.ravel()
     x2, y2 = point2.ravel()
     return x2 - x1, y2 - y1
@@ -215,19 +219,26 @@ def euclidean_distance_3D(points):
 
     return distance
 
+
 def estimate_head_pose(landmarks, image_size):
+    """
+    Function to estimate the head pose
+    """
     # Scale factor based on user's face width (assumes model face width is 150mm)
     scale_factor = USER_FACE_WIDTH / 150.0
     # 3D model points.
     model_points = np.array([
         (0.0, 0.0, 0.0),             # Nose tip
         (0.0, -330.0 * scale_factor, -65.0 * scale_factor),        # Chin
-        (-225.0 * scale_factor, 170.0 * scale_factor, -135.0 * scale_factor),     # Left eye left corner
-        (225.0 * scale_factor, 170.0 * scale_factor, -135.0 * scale_factor),      # Right eye right corner
-        (-150.0 * scale_factor, -150.0 * scale_factor, -125.0 * scale_factor),    # Left Mouth corner
-        (150.0 * scale_factor, -150.0 * scale_factor, -125.0 * scale_factor)      # Right mouth corner
+        (-225.0 * scale_factor, 170.0 * scale_factor, - \
+         135.0 * scale_factor),     # Left eye left corner
+        (225.0 * scale_factor, 170.0 * scale_factor, - \
+         135.0 * scale_factor),      # Right eye right corner
+        (-150.0 * scale_factor, -150.0 * scale_factor, - \
+         125.0 * scale_factor),    # Left Mouth corner
+        (150.0 * scale_factor, -150.0 * scale_factor, - \
+         125.0 * scale_factor)      # Right mouth corner
     ])
-    
 
     # Camera internals
     focal_length = image_size[1]
@@ -235,11 +246,11 @@ def estimate_head_pose(landmarks, image_size):
     camera_matrix = np.array(
         [[focal_length, 0, center[0]],
          [0, focal_length, center[1]],
-         [0, 0, 1]], dtype = "double"
+         [0, 0, 1]], dtype="double"
     )
 
     # Assuming no lens distortion
-    dist_coeffs = np.zeros((4,1))
+    dist_coeffs = np.zeros((4, 1))
 
     # 2D image points from landmarks, using defined indices
     image_points = np.array([
@@ -251,25 +262,27 @@ def estimate_head_pose(landmarks, image_size):
         landmarks[RIGHT_MOUTH_CORNER_INDEX]      # Right mouth corner
     ], dtype="double")
 
-
-        # Solve for pose
-    (success, rotation_vector, translation_vector) = cv.solvePnP(model_points, image_points, camera_matrix, dist_coeffs, flags=cv.SOLVEPNP_ITERATIVE)
+    # Solve for pose
+    (success, rotation_vector, translation_vector) = cv.solvePnP(model_points,
+                                                                 image_points, camera_matrix, dist_coeffs, flags=cv.SOLVEPNP_ITERATIVE)
 
     # Convert rotation vector to rotation matrix
     rotation_matrix, _ = cv.Rodrigues(rotation_vector)
 
     # Combine rotation matrix and translation vector to form a 3x4 projection matrix
-    projection_matrix = np.hstack((rotation_matrix, translation_vector.reshape(-1, 1)))
+    projection_matrix = np.hstack(
+        (rotation_matrix, translation_vector.reshape(-1, 1)))
 
     # Decompose the projection matrix to extract Euler angles
-    _, _, _, _, _, _, euler_angles = cv.decomposeProjectionMatrix(projection_matrix)
+    _, _, _, _, _, _, euler_angles = cv.decomposeProjectionMatrix(
+        projection_matrix)
     pitch, yaw, roll = euler_angles.flatten()[:3]
 
-
-     # Normalize the pitch angle
+    # Normalize the pitch angle
     pitch = normalize_pitch(pitch)
 
     return pitch, yaw, roll
+
 
 def normalize_pitch(pitch):
     """
@@ -293,7 +306,7 @@ def normalize_pitch(pitch):
         pitch = -(180 + pitch)
     elif pitch > 90:
         pitch = 180 - pitch
-        
+
     pitch = -pitch
 
     return pitch
@@ -322,16 +335,21 @@ def blinking_ratio(landmarks):
 
     return ratio
 
-def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, looks):
+
+def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye):
+    """
+    Function to calcualate the eye movement and evaluate the actual head position
+    To control the drones direction by the gaze movement
+    """
     left_eye_dx = curr_left_eye[0] - prev_left_eye[0]
     left_eye_dy = curr_left_eye[1] - prev_left_eye[1]
-    
+
     right_eye_dx = curr_right_eye[0] - prev_right_eye[0]
     right_eye_dy = curr_right_eye[1] - prev_right_eye[1]
-    
+
     dx = (left_eye_dx + right_eye_dx) // 2
     dy = (left_eye_dy + right_eye_dy) // 2
-    
+
     if should_reset:
         if len(avg_x_head) == 20:
             ax = sum(avg_x_head) / len(avg_x_head)
@@ -340,27 +358,27 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, l
                 return "RESET"
             avg_x_head.clear()
             avg_y_head.clear()
-            
+
         if len(avg_x_head) < 20:
             avg_x_head.append(dx)
             avg_y_head.append(dy)
         return "NO-MOVEMENT (INVALID)"
-    
+
     if len(avg_x) == 5:
         avg_x.clear()
         avg_y.clear()
-        
+
     if len(avg_x) < 5:
         avg_x.append(dx)
         avg_y.append(dy)
-    
+
     avg_dx = sum(avg_x) / len(avg_x)
     avg_dy = sum(avg_y) / len(avg_y)
-    
-    #DEBUG
+
+    # DEBUG
     speed = 1
     if keyboard.is_pressed('space'):
-        client.takeoffAsync().join() # Take off
+        client.takeoffAsync().join()  # Take off
     if abs(avg_dx) < 7 and avg_dy < -6:
         client.moveByVelocityAsync(0, 0, 1, speed).join()  # Move up
         return "UP"
@@ -386,6 +404,7 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye, l
         client.moveByVelocityAsync(0, -1, -1, speed).join()  # Move down left
         return "DOWN-LEFT"
     return "NO-MOVEMENT"
+
 
 # Initializing MediaPipe face mesh and camera
 if PRINT_DATA:
@@ -427,7 +446,7 @@ column_names = [
 # Add head pose columns if head pose estimation is enabled
 if ENABLE_HEAD_POSE:
     column_names.extend(["Pitch", "Yaw", "Roll"])
-    
+
 if LOG_ALL_FEATURES:
     column_names.extend(
         [f"Landmark_{i}_X" for i in range(468)]
@@ -436,7 +455,8 @@ if LOG_ALL_FEATURES:
 
 # Main loop for video capture and processing
 try:
-    angle_buffer = AngleBuffer(size=MOVING_AVERAGE_WINDOW)  # Adjust size for smoothing
+    # Adjust size for smoothing
+    angle_buffer = AngleBuffer(size=MOVING_AVERAGE_WINDOW)
 
     while True:
         command = ""
@@ -450,7 +470,7 @@ try:
         rgb_frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
         img_h, img_w = frame.shape[:2]
         results = mp_face_mesh.process(rgb_frame)
-        
+
         if results.multi_face_landmarks:
             mesh_points = np.array(
                 [
@@ -462,7 +482,8 @@ try:
             # Get the 3D landmarks from facemesh x, y and z(z is distance from 0 points)
             # just normalize values
             mesh_points_3D = np.array(
-                [[n.x, n.y, n.z] for n in results.multi_face_landmarks[0].landmark]
+                [[n.x, n.y, n.z]
+                    for n in results.multi_face_landmarks[0].landmark]
             )
             # getting the head pose estimation 3d points
             head_pose_points_3D = np.multiply(
@@ -478,7 +499,8 @@ try:
             focal_length = 1 * img_w
 
             cam_matrix = np.array(
-                [[focal_length, 0, img_h / 2], [0, focal_length, img_w / 2], [0, 0, 1]]
+                [[focal_length, 0, img_h / 2],
+                    [0, focal_length, img_w / 2], [0, 0, 1]]
             )
 
             # The distortion parameters
@@ -505,7 +527,7 @@ try:
             # if angle cross the values then
             threshold_angle = 3
             face_looks = "Forward"
-            
+
             # See where the user's head tilting
             if angle_y < -threshold_angle:
                 face_looks = "Left"
@@ -555,54 +577,58 @@ try:
                 if EYES_BLINK_FRAME_COUNTER > EYE_AR_CONSEC_FRAMES:
                     TOTAL_BLINKS += 1
                 EYES_BLINK_FRAME_COUNTER = 0
-            
+
             # Display all facial landmarks if enabled
             if SHOW_ALL_FEATURES:
                 for point in mesh_points:
                     cv.circle(frame, tuple(point), 1, (0, 255, 0), -1)
             # Process and display eye features
-            (l_cx, l_cy), l_radius = cv.minEnclosingCircle(mesh_points[LEFT_EYE_IRIS])
-            (r_cx, r_cy), r_radius = cv.minEnclosingCircle(mesh_points[RIGHT_EYE_IRIS])
+            (l_cx, l_cy), l_radius = cv.minEnclosingCircle(
+                mesh_points[LEFT_EYE_IRIS])
+            (r_cx, r_cy), r_radius = cv.minEnclosingCircle(
+                mesh_points[RIGHT_EYE_IRIS])
             center_left = np.array([l_cx, l_cy], dtype=np.int32)
             center_right = np.array([r_cx, r_cy], dtype=np.int32)
-            
+
             # Highlighting the irises and corners of the eyes
             cv.circle(
                 frame, center_left, int(l_radius), (255, 0, 255), 2, cv.LINE_AA
             )  # Left iris
             cv.circle(
-                frame, center_right, int(r_radius), (255, 0, 255), 2, cv.LINE_AA
+                frame, center_right, int(
+                    r_radius), (255, 0, 255), 2, cv.LINE_AA
             )  # Right iris
             cv.circle(
-                frame, mesh_points[LEFT_EYE_INNER_CORNER][0], 3, (255, 255, 255), -1, cv.LINE_AA
+                frame, mesh_points[LEFT_EYE_INNER_CORNER][0], 3, (
+                    255, 255, 255), -1, cv.LINE_AA
             )  # Left eye right corner
             cv.circle(
-                frame, mesh_points[LEFT_EYE_OUTER_CORNER][0], 3, (0, 255, 255), -1, cv.LINE_AA
+                frame, mesh_points[LEFT_EYE_OUTER_CORNER][0], 3, (
+                    0, 255, 255), -1, cv.LINE_AA
             )  # Left eye left corner
             cv.circle(
-                frame, mesh_points[RIGHT_EYE_INNER_CORNER][0], 3, (255, 255, 255), -1, cv.LINE_AA
+                frame, mesh_points[RIGHT_EYE_INNER_CORNER][0], 3, (
+                    255, 255, 255), -1, cv.LINE_AA
             )  # Right eye right corner
             cv.circle(
-                frame, mesh_points[RIGHT_EYE_OUTER_CORNER][0], 3, (0, 255, 255), -1, cv.LINE_AA
+                frame, mesh_points[RIGHT_EYE_OUTER_CORNER][0], 3, (
+                    0, 255, 255), -1, cv.LINE_AA
             )  # Right eye left corner
 
             # Calculating relative positions
-            l_dx, l_dy = vector_position(mesh_points[LEFT_EYE_OUTER_CORNER], center_left)
-            r_dx, r_dy = vector_position(mesh_points[RIGHT_EYE_OUTER_CORNER], center_right)
-            
+            l_dx, l_dy = vector_position(
+                mesh_points[LEFT_EYE_OUTER_CORNER], center_left)
+            r_dx, r_dy = vector_position(
+                mesh_points[RIGHT_EYE_OUTER_CORNER], center_right)
+
             if origin_left is None or origin_right is None:
                 origin_left = [l_cx, l_cy]
                 origin_right = [r_cx, r_cy]
             # Printing data if enabled
             if PRINT_DATA:
-                # print(f"Total Blinks: {TOTAL_BLINKS}")
-                # print(f"Left Eye Center X: {l_cx} Y: {l_cy}")
-                # print(f"Right Eye Center X: {r_cx} Y: {r_cy}")
-                # print(f"Left Iris Relative Pos Dx: {l_dx} Dy: {l_dy}")
-                # print(f"Right Iris Relative Pos Dx: {r_dx} Dy: {r_dy}\n")
-                # Check if head pose estimation is enabled
                 if ENABLE_HEAD_POSE:
-                    pitch, yaw, roll = estimate_head_pose(mesh_points, (img_h, img_w))
+                    pitch, yaw, roll = estimate_head_pose(
+                        mesh_points, (img_h, img_w))
                     angle_buffer.add([pitch, yaw, roll])
                     pitch, yaw, roll = angle_buffer.get_average()
 
@@ -618,15 +644,14 @@ try:
                         pitch -= initial_pitch
                         yaw -= initial_yaw
                         roll -= initial_roll
-                    
-                    # if PRINT_DATA:
-                        # print(f"Head Pose Angles: Pitch={int(pitch)}, Yaw={int(yaw)}, Roll={int(roll)}")
-                    
-                    command = eye_movement(origin_left, origin_right, [l_cx, l_cy], [r_cx, r_cy], face_looks)
+
+                    command = eye_movement(origin_left, origin_right, [
+                                           l_cx, l_cy], [r_cx, r_cy], face_looks)
                     print(f"Movement Direction: {command}")
             # Logging data
             if LOG_DATA:
-                timestamp = int(time.time() * 1000)  # Current timestamp in milliseconds
+                # Current timestamp in milliseconds
+                timestamp = int(time.time() * 1000)
                 log_entry = [
                     timestamp,
                     l_cx,
@@ -639,14 +664,16 @@ try:
                     r_dy,
                     TOTAL_BLINKS,
                 ]  # Include blink count in CSV
-                log_entry = [timestamp, l_cx, l_cy, r_cx, r_cy, l_dx, l_dy, r_dx, r_dy, TOTAL_BLINKS]  # Include blink count in CSV
-                
+                log_entry = [timestamp, l_cx, l_cy, r_cx, r_cy, l_dx, l_dy,
+                             r_dx, r_dy, TOTAL_BLINKS]  # Include blink count in CSV
+
                 # Append head pose data if enabled
                 if ENABLE_HEAD_POSE:
                     log_entry.extend([pitch, yaw, roll])
                 csv_data.append(log_entry)
                 if LOG_ALL_FEATURES:
-                    log_entry.extend([p for point in mesh_points for p in point])
+                    log_entry.extend(
+                        [p for point in mesh_points for p in point])
                 csv_data.append(log_entry)
 
             # Sending data through socket
@@ -656,13 +683,18 @@ try:
         # Writing the on screen data on the frame
             if SHOW_ON_SCREEN_DATA:
                 if IS_RECORDING:
-                    cv.circle(frame, (30, 30), 10, (0, 0, 255), -1)  # Red circle at the top-left corner
-                cv.putText(frame, f"Blinks: {TOTAL_BLINKS}", (30, 80), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
+                    # Red circle at the top-left corner
+                    cv.circle(frame, (30, 30), 10, (0, 0, 255), -1)
+                cv.putText(frame, f"Blinks: {TOTAL_BLINKS}", (30, 80),
+                           cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
                 if ENABLE_HEAD_POSE:
-                    cv.putText(frame, f"Pitch: {int(pitch)}", (30, 110), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
-                    cv.putText(frame, f"Yaw: {int(yaw)}", (30, 140), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
-                    cv.putText(frame, f"Roll: {int(roll)}", (30, 170), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
-        
+                    cv.putText(frame, f"Pitch: {int(pitch)}", (30, 110),
+                               cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
+                    cv.putText(frame, f"Yaw: {int(yaw)}", (30, 140),
+                               cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
+                    cv.putText(frame, f"Roll: {int(roll)}", (30, 170),
+                               cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2, cv.LINE_AA)
+
         # Displaying the processed frame
         cv.imshow("Eye Tracking", frame)
         # Handle key presses
@@ -670,20 +702,21 @@ try:
 
         # Calibrate on 'c' key press
         if not should_reset:
+            # To check the head movement and the position
             if origin_left is not None and origin_right is not None:
                 left_eye_dx = origin_left[0] - l_cx
                 left_eye_dy = origin_left[1] - l_cy
-                
+
                 right_eye_dx = origin_right[0] - r_cx
                 right_eye_dy = origin_right[1] - r_cy
 
                 avg_dx = (left_eye_dx + right_eye_dx) // 2
                 avg_dy = (left_eye_dy + right_eye_dy) // 2
-                
+
                 should_reset = not (abs(avg_dx) < 45 and abs(avg_dy) < 45)
-            
-        
+
         if key == ord('c') or command == "RESET":
+            # Reset all the parameter to default value
             origin_left = None
             origin_right = None
             avg_x.clear()
@@ -691,27 +724,26 @@ try:
             avg_x_head.clear()
             avg_y_head.clear()
             should_reset = False
-            
+
             initial_pitch, initial_yaw, initial_roll = pitch, yaw, roll
             if PRINT_DATA:
                 print("Head pose recalibrated.")
-                
+
         # Inside the main loop, handle the 'r' key press
         if key == ord('r'):
-            
+
             IS_RECORDING = not IS_RECORDING
             if IS_RECORDING:
                 print("Recording started.")
             else:
                 print("Recording paused.")
 
-
         # Exit on 'q' key press
         if key == ord('q'):
             if PRINT_DATA:
                 print("Exiting program...")
             break
-        
+
 except Exception as e:
     print(f"An error occurred: {e}")
 finally:
