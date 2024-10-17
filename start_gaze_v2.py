@@ -171,11 +171,11 @@ SERVER_ADDRESS = (SERVER_IP, 7070)
 origin_left = None
 origin_right = None
 
+# Bit to store reset status
 should_reset = False
-
+# stack history
 avg_x = []
 avg_y = []
-
 avg_x_head = []
 avg_y_head = []
 
@@ -346,7 +346,7 @@ def eye_movement(prev_left_eye, prev_right_eye, curr_left_eye, curr_right_eye):
 
     right_eye_dx = curr_right_eye[0] - prev_right_eye[0]
     right_eye_dy = curr_right_eye[1] - prev_right_eye[1]
-
+    # To calculate the delta value by the current and previous position
     dx = (left_eye_dx + right_eye_dx) // 2
     dy = (left_eye_dy + right_eye_dy) // 2
 
@@ -564,7 +564,6 @@ try:
             cv.line(frame, p1, p2, (255, 0, 255), 3)
             # getting the blinking ratio
             eyes_aspect_ratio = blinking_ratio(mesh_points_3D)
-            # print(f"Blinking ratio : {ratio}")
             # checking if ear less then or equal to required threshold if yes then
             # count the number of frame frame while eyes are closed.
             if eyes_aspect_ratio <= BLINK_THRESHOLD:
