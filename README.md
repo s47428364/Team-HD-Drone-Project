@@ -33,6 +33,11 @@ pip install numpy
 pip install dlib
 ```
 ### 3. Install OpenAi module
+Set up the conda environment
+```
+conda env create -f environment.yml
+```
+Set up openai
 ```
 pip install openai
 ```
