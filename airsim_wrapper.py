@@ -2,8 +2,10 @@ import airsim
 import math
 import numpy as np
 
+"""
+This code is based on AirSim's sample code, modified for better performance by deleting an unnecessary function.
+"""
 
-# This code is based on AirSim's sample code, modified for better performance by deleting an unnecessary function.
 class AirSimWrapper:
     def __init__(self):
         self.client = airsim.MultirotorClient()
