@@ -1,3 +1,5 @@
+# Set up the conda environment
+
 name: chatgpt
 channels:
   - defaults

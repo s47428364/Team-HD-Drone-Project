@@ -4,8 +4,6 @@ import pyttsx3
 from faster_whisper import WhisperModel
 
 
-
-
 # Initialize Text-to-Speech Engine
 engine = pyttsx3.init()
 # This is to set the voice to English
