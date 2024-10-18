@@ -9,6 +9,10 @@ import json
 import time
 import record_command_and_transcribe as rct
 
+"""
+This code is adapted from https://github.com/microsoft/PromptCraft-Robotics/tree/main/chatgpt_airsim
+author: MicroSoft Robotics
+"""
 parser = argparse.ArgumentParser()
 parser.add_argument("--prompt", type=str, default="airsim_basic.txt")
 parser.add_argument("--sysprompt", type=str, default="airsim_basic.txt")
