@@ -78,8 +78,10 @@ def ask(prompt):
     return chat_history[-1]["content"]
 
 
+# Announce that ChatGPT initialization is complete
 rct.speak(f"Done.")
 
+# Compile a regular expression to extract code blocks from responses
 code_block_regex = re.compile(r"```(.*?)```", re.DOTALL)
 
 
@@ -95,18 +97,21 @@ def extract_python_code(content):
     else:
         return None
 
+# Announce the initialization of AirSim
 rct.speak(f"Initializing AirSim...")
 aw = AirSimWrapper()
 rct.speak(f"Done.")
 
+# Load the initial prompt from the file
 with open(args.prompt, "r") as f:
     prompt = f.read()
 
+# Send the initial prompt to the Chatbot
 ask(prompt)
 rct.speak("Welcome to the AirSim chatbot! I am ready to help you with your AirSim questions and commands.")
 
 
-
+# Start an infinite loop to handle user interactions
 while True:
     audio_file = rct.record_audio()
     transcription = rct.transcribe_audio(audio_file)
