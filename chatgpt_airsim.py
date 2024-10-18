@@ -14,22 +14,29 @@ parser.add_argument("--prompt", type=str, default="airsim_basic.txt")
 parser.add_argument("--sysprompt", type=str, default="airsim_basic.txt")
 args = parser.parse_args()
 
+# Set up command-line argument parsing
 config_path = "config.json"
+
+# Check if the configuration file exists
 if not os.path.exists(config_path):
     raise FileNotFoundError(f"Configuration file '{config_path}' not found.")
 
+# Load configuration settings from the JSON file
 with open(config_path, "r") as f:
     config = json.load(f)
 
 if "OPENAI_API_KEY" not in config:
     raise KeyError("OPENAI_API_KEY not found in the configuration file.")
 
+# Initialize the speech system and announce the start of ChatGPT initialization
 rct.speak("Initializing ChatGPT...")
 openai.api_key = config["OPENAI_API_KEY"]
 
+# Load the system prompt from the file
 with open(args.sysprompt, "r") as f:
     sysprompt = f.read()
 
+# Initialize chat history with system prompt and initial conversation
 chat_history = [
     {
         "role": "system",
@@ -88,7 +95,6 @@ def extract_python_code(content):
     else:
         return None
 
-
 rct.speak(f"Initializing AirSim...")
 aw = AirSimWrapper()
 rct.speak(f"Done.")
@@ -107,17 +113,23 @@ while True:
     question = open("transcription.txt", "r").read().lower()
     print(question)
 
+    # Check if the user wants to exit the chatbot
     if "quit" in question or "exit" in question:
         rct.speak("Thank you for using the AirSim chatbot! Goodbye!")
         break
 
+    # Get the assistant's response to the user's question
     response = ask(question)
     print(response)
+
+    # If the assistant's response contains the word 'question', read it out loud
     if "question" in response:
         rct.speak(f"\n{response}\n")
     else:
+        # Extract any Python code from the assistant's response
         code = extract_python_code(response)
         if code is not None:
             rct.speak("Executing code:\n")
+            # Execute the extracted Python code
             exec(code)
             rct.speak("Done!\n")
