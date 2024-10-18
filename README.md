@@ -61,8 +61,14 @@ You’ll receive feedback prompts, such as "Recording 5 seconds," to confirm the
 To stop the code and end the session, you can say, "Thank you, you can quit" or simply "quit."<br>
 The chatbot will respond, “Thank you for using the AirSim chatbot! Goodbye!” to indicate a successful shutdown.<br>
 
+### 5.Run Gaze Tracking
+When the drone simulator is running, you can enable gaze tracking to control the drone with your eyes. <br>
+Simply run the following command or run the file:
+```
+\i start_gaze_v2.py
+```
 
-### 5. Integration of Control Methods
+### 6. Integration of Control Methods
 Speech Recognition Integration<br>
 To enable speech recognition, we use the faster-whisper library. You’ll also need pyaudio for capturing audio and pyttsx3 for text-to-speech feedback.
 
