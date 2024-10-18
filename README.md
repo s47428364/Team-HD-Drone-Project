@@ -83,5 +83,6 @@ Speech Commands: Map commands like "move forward" or "go left" to drone controls
 * Epic Games for Unreal Engine
 * Microsoft AirSim for the drone simulator.
 * Whisper for speech recognition.
-* Meta AI for LLaMA models.
+* OpenAI for ChatGPT models.
 * Hugging Face for the transformers library.
+* cv2 Library for gaze tracking
