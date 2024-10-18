@@ -5,6 +5,11 @@ from faster_whisper import WhisperModel
 
 
 # Initialize Text-to-Speech Engine
+
+"""
+This code is adapted from ChatGpt
+author: ChatGpt
+"""
 engine = pyttsx3.init()
 # This is to set the voice to English
 voices = engine.getProperty('voices')
@@ -17,7 +22,9 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-
+"""
+This code is adapted from W3Cschool
+"""
 # Record the voice command
 def record_audio():
     CHUNK = 1024
